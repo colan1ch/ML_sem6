@@ -1,0 +1,465 @@
+\documentclass[a4paper,12pt]{article}
+
+\usepackage{polyglossia} 
+\setmainlanguage{russian}
+\usepackage{fontspec}
+\setmainfont{Times New Roman}
+\usepackage{geometry}
+\usepackage{amsmath}
+\usepackage{graphicx} 
+\usepackage{listings}
+\usepackage{xcolor}
+
+\geometry{top=20mm, bottom=20mm, left=25mm, right=15mm}
+
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\scriptsize,
+    keywordstyle=\color{blue},
+    stringstyle=\color{red},
+    breaklines=true,
+    frame=single
+}
+
+\begin{document}
+
+\noindent
+\begin{minipage}[c]{0.22\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../bmstu_logo.jpg} 
+\end{minipage}%
+\hfill
+\begin{minipage}[c]{0.75\textwidth}
+    \centering
+    {\small\bfseries Министерство науки и высшего образования Российской Федерации} \\[2pt]
+    {\small\bfseries Федеральное государственное автономное образовательное учреждение} \\[2pt]
+    {\small\bfseries высшего образования} \\[2pt]
+    {\small\bfseries «Московский государственный технический университет} \\[2pt]
+    {\small\bfseries имени Н.Э. Баумана} \\[2pt]
+    {\small\bfseries (МГТУ им. Н.Э. Баумана)}
+\end{minipage}
+
+\vspace{12pt}
+\hrule height 1pt
+\vspace{2pt}
+\hrule height 2pt
+
+\vspace{10mm}
+
+\noindent
+\textbf{ФАКУЛЬТЕТ} \underline{\makebox[138mm][l]{\hspace{15mm}\textbf{ИНФОРМАТИКА И СИСТЕМЫ УПРАВЛЕНИЯ}}} \\[10pt]
+\textbf{КАФЕДРА} \underline{\makebox[143mm][l]{\hspace{12mm}\textbf{СИСТЕМЫ ОБРАБОТКИ ИНФОРМАЦИИ И УПРАВЛЕНИЯ}}}
+
+\vspace{25mm}
+
+\begin{center}
+    {\Large Отчет по лабораторной работе № 9} \\[12pt]
+    {\Large\bfseries «Применение глубокого обучения.} \\[4pt]
+    {\Large\bfseries Архитектуры нейронных сетей»} \\[20mm]
+    {\large по дисциплине «Технологии машинного обучения»}
+\end{center}
+
+\vspace{35mm}
+
+\noindent
+\begin{tabular}{@{}llcc}
+    \large Студент & \underline{\makebox[28mm][c]{\textbf{ИУ5-64Б}}} & \underline{\makebox[55mm]{}} & \underline{\makebox[50mm][c]{\textbf{Н.А. Чернев}}} \\[2pt]
+    & & & \scriptsize (И.О. Фамилия) \\[20pt]
+    \large Преподаватель & & \underline{\makebox[55mm]{}} & \underline{\makebox[50mm][c]{\textbf{Ю.Е. Гапанюк}}} \\[2pt]
+    & & & \scriptsize (И.О. Фамилия)
+\end{tabular}
+
+\vfill
+\begin{center}
+    \large 2026 г.
+\end{center}
+
+\newpage
+
+\section*{Цель работы}
+Изучение архитектур глубоких нейронных сетей и их применения к задачам классификации/регрессии.
+
+\section*{Подготовка данных}
+
+\begin{lstlisting}
+import numpy as np
+import tensorflow as tf
+from tensorflow import keras
+from keras import layers
+from sklearn.datasets import load_iris
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+
+# Загрузка данных
+X, y = load_iris(return_X_y=True)
+
+# Нормализация
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# Разделение
+X_train, X_test, y_train, y_test = train_test_split(
+    X_scaled, y, test_size=0.3, random_state=42)
+
+# One-hot кодирование целевой переменной
+y_train_cat = keras.utils.to_categorical(y_train, 3)
+y_test_cat = keras.utils.to_categorical(y_test, 3)
+\end{lstlisting}
+\section*{Подготовка данных}
+
+\begin{lstlisting}
+import numpy as np
+import tensorflow as tf
+from tensorflow import keras
+from keras import layers
+from sklearn.datasets import load_iris
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+from sklearn.decomposition import PCA
+import matplotlib.pyplot as plt
+
+# Загрузка данных
+X, y = load_iris(return_X_y=True)
+
+# Нормализация
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# Разделение
+X_train, X_test, y_train, y_test = train_test_split(
+    X_scaled, y, test_size=0.3, random_state=42)
+
+# One-hot кодирование целевой переменной
+y_train_cat = keras.utils.to_categorical(y_train, 3)
+y_test_cat = keras.utils.to_categorical(y_test, 3)
+\end{lstlisting}
+
+\subsection*{Анализ главных компонент для визуализации}
+
+\begin{lstlisting}
+# PCA для 2D визуализации
+pca = PCA(n_components=2)
+X_pca = pca.fit_transform(X_scaled)
+
+# Вклад компонент
+fig, ax = plt.subplots(figsize=(8, 6))
+components = ['PC1', 'PC2']
+variance = pca.explained_variance_ratio_ * 100
+ax.bar(components, variance, color=['#FF6B6B', '#4ECDC4'])
+ax.set_ylabel('Объясненная дисперсия (%)')
+ax.set_title('Вклад главных компонент')
+plt.savefig('fig_1.png', dpi=150, bbox_inches='tight')
+plt.show()
+\end{lstlisting}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.85\textwidth]{fig_1.png}
+    \small Рисунок 1 --- Вклад главных компонент в объясненную дисперсию
+\end{figure}
+
+\subsection*{Визуализация датасета в 2D пространстве}
+
+\begin{lstlisting}
+# t-SNE редукция для лучшей визуализации
+from sklearn.manifold import TSNE
+
+tsne = TSNE(n_components=2, perplexity=30, n_iter=1000, random_state=42)
+X_tsne = tsne.fit_transform(X_scaled)
+
+# Визуализация датасета после t-SNE
+fig, ax = plt.subplots(figsize=(10, 8))
+colors = ['#FF6B6B', '#4ECDC4', '#45B7D1']
+for i in range(3):
+    mask = y == i
+    ax.scatter(X_tsne[mask, 0], X_tsne[mask, 1], 
+               c=colors[i], label=f'Class {i}', s=80, alpha=0.7)
+ax.set_xlabel('t-SNE компонента 1')
+ax.set_ylabel('t-SNE компонента 2')
+ax.set_title('t-SNE редукция датасета Iris')
+ax.legend()
+plt.savefig('fig_2.png', dpi=150, bbox_inches='tight')
+plt.show()
+\end{lstlisting}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.85\textwidth]{fig_2.png}
+    \small Рисунок 2 --- t-SNE редукция датасета (локальная структура)
+\end{figure}
+
+\section*{Архитектуры нейронных сетей}
+
+\subsection*{Мелкая сеть (2 слоя)}
+\begin{lstlisting}
+model_shallow = keras.Sequential([
+    layers.Dense(128, activation='relu', input_shape=(4,)),
+    layers.Dropout(0.2),
+    layers.Dense(64, activation='relu'),
+    layers.Dropout(0.2),
+    layers.Dense(3, activation='softmax')
+])
+
+model_shallow.compile(optimizer='adam', 
+                      loss='categorical_crossentropy',
+                      metrics=['accuracy'])
+
+history_shallow = model_shallow.fit(
+    X_train, y_train_cat, epochs=100, batch_size=16, 
+    validation_split=0.2, verbose=0)
+\end{lstlisting}
+
+\subsection*{Средняя сеть (3 слоя)}
+\begin{lstlisting}
+model_medium = keras.Sequential([
+    layers.Dense(256, activation='relu', input_shape=(4,)),
+    layers.Dropout(0.3),
+    layers.Dense(128, activation='relu'),
+    layers.Dropout(0.3),
+    layers.Dense(64, activation='relu'),
+    layers.Dropout(0.2),
+    layers.Dense(3, activation='softmax')
+])
+
+model_medium.compile(optimizer='adam',
+                     loss='categorical_crossentropy',
+                     metrics=['accuracy'])
+
+history_medium = model_medium.fit(
+    X_train, y_train_cat, epochs=100, batch_size=16,
+    validation_split=0.2, verbose=0)
+\end{lstlisting}
+
+\subsection*{Глубокая сеть (5 слоев)}
+\begin{lstlisting}
+model_deep = keras.Sequential([
+    layers.Dense(512, activation='relu', input_shape=(4,)),
+    layers.Dropout(0.4),
+    layers.Dense(256, activation='relu'),
+    layers.Dropout(0.3),
+    layers.Dense(128, activation='relu'),
+    layers.Dropout(0.3),
+    layers.Dense(64, activation='relu'),
+    layers.Dropout(0.2),
+    layers.Dense(32, activation='relu'),
+    layers.Dropout(0.2),
+    layers.Dense(3, activation='softmax')
+])
+
+model_deep.compile(optimizer='adam',
+                   loss='categorical_crossentropy',
+                   metrics=['accuracy'])
+
+history_deep = model_deep.fit(
+    X_train, y_train_cat, epochs=100, batch_size=16,
+    validation_split=0.2, verbose=0)
+\end{lstlisting}
+
+\section*{Анализ процесса обучения}
+
+\subsection*{История обучения моделей}
+
+\begin{lstlisting}
+# Визуализация процесса обучения
+fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+
+# Loss
+for history, name in [(history_shallow, 'Shallow'),
+                       (history_medium, 'Medium'),
+                       (history_deep, 'Deep')]:
+    axes[0].plot(history.history['loss'], label=name, linewidth=2)
+
+axes[0].set_xlabel('Эпоха')
+axes[0].set_ylabel('Loss')
+axes[0].set_title('История обучения (Loss)')
+axes[0].legend()
+axes[0].grid(True, alpha=0.3)
+
+# Accuracy
+for history, name in [(history_shallow, 'Shallow'),
+                       (history_medium, 'Medium'),
+                       (history_deep, 'Deep')]:
+    axes[1].plot(history.history['accuracy'], label=name, linewidth=2)
+
+axes[1].set_xlabel('Эпоха')
+axes[1].set_ylabel('Accuracy')
+axes[1].set_title('История обучения (Accuracy)')
+axes[1].legend()
+axes[1].grid(True, alpha=0.3)
+
+plt.tight_layout()
+plt.savefig('fig_3.png', dpi=150, bbox_inches='tight')
+plt.show()
+\end{lstlisting}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.85\textwidth]{fig_3.png}
+    \small Рисунок 3 --- История обучения (Loss и Accuracy) для разных архитектур
+\end{figure}
+
+\subsection*{Сравнение архитектур}
+
+\begin{lstlisting}
+# Тестирование моделей
+models = {
+    'Shallow (2 layers)': model_shallow,
+    'Medium (3 layers)': model_medium,
+    'Deep (5 layers)': model_deep
+}
+
+results = {}
+for name, model in models.items():
+    test_loss, test_acc = model.evaluate(X_test, y_test_cat, verbose=0)
+    results[name] = test_acc
+    print(f"{name}: Accuracy = {test_acc:.4f}")
+
+# Визуализация результатов
+fig, ax = plt.subplots(figsize=(10, 6))
+names = list(results.keys())
+accuracies = list(results.values())
+colors = ['#FF6B6B', '#4ECDC4', '#45B7D1']
+ax.bar(names, accuracies, color=colors)
+ax.set_ylabel('Test Accuracy')
+ax.set_title('Сравнение точности архитектур на тестовой выборке')
+ax.set_ylim([0.9, 1.0])
+for i, (name, acc) in enumerate(zip(names, accuracies)):
+    ax.text(i, acc + 0.005, f'{acc:.4f}', ha='center')
+plt.xticks(rotation=15, ha='right')
+plt.tight_layout()
+plt.savefig('fig_4.png', dpi=150, bbox_inches='tight')
+plt.show()
+\end{lstlisting}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.85\textwidth]{fig_4.png}
+    \small Рисунок 4 --- Сравнение точности различных архитектур нейронных сетей
+\end{figure}
+
+\section*{Анализ предсказаний}
+
+\subsection*{Предсказания разных моделей}
+
+\begin{lstlisting}
+# Получение предсказаний
+y_pred_shallow = model_shallow.predict(X_test)
+y_pred_medium = model_medium.predict(X_test)
+y_pred_deep = model_deep.predict(X_test)
+
+# Преобразование в классы
+y_pred_shallow_cls = np.argmax(y_pred_shallow, axis=1)
+y_pred_medium_cls = np.argmax(y_pred_medium, axis=1)
+y_pred_deep_cls = np.argmax(y_pred_deep, axis=1)
+
+# Визуализация результатов классификации для мелкой сети
+fig, ax = plt.subplots(figsize=(10, 8))
+for i in range(3):
+    mask = y_test == i
+    ax.scatter(X_pca[mask, 0], X_pca[mask, 1], 
+               c='gray', s=100, alpha=0.3, marker='o', label=f'True Class {i}')
+    
+for i in range(3):
+    mask = (y_test_cls == i) & (y_pred_shallow_cls == i)
+    ax.scatter(X_pca[mask, 0], X_pca[mask, 1], 
+               c=['#FF6B6B', '#4ECDC4', '#45B7D1'][i], s=50, marker='o')
+
+ax.set_xlabel('PC1')
+ax.set_ylabel('PC2')
+ax.set_title('Предсказания Shallow Network в PCA пространстве')
+plt.tight_layout()
+plt.savefig('fig_5.png', dpi=150, bbox_inches='tight')
+plt.show()
+\end{lstlisting}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.85\textwidth]{fig_5.png}
+    \small Рисунок 5 --- Предсказания мелкой сети в PCA пространстве
+\end{figure}
+
+\subsection*{Матрицы ошибок и метрики}
+
+\begin{lstlisting}
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
+
+# Матрица ошибок для глубокой сети
+cm = confusion_matrix(y_test, y_pred_deep_cls)
+
+fig, ax = plt.subplots(figsize=(8, 6))
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', ax=ax, 
+            xticklabels=['Class 0', 'Class 1', 'Class 2'],
+            yticklabels=['Class 0', 'Class 1', 'Class 2'])
+ax.set_ylabel('True Label')
+ax.set_xlabel('Predicted Label')
+ax.set_title('Матрица ошибок Deep Network')
+plt.tight_layout()
+plt.savefig('fig_6.png', dpi=150, bbox_inches='tight')
+plt.show()
+\end{lstlisting}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.85\textwidth]{fig_6.png}
+    \small Рисунок 6 --- Матрица ошибок для глубокой нейронной сети
+\end{figure}
+
+\subsection*{Распределение вероятностей предсказаний}
+
+\begin{lstlisting}
+# Анализ вероятностей предсказаний
+max_probs_shallow = np.max(y_pred_shallow, axis=1)
+max_probs_medium = np.max(y_pred_medium, axis=1)
+max_probs_deep = np.max(y_pred_deep, axis=1)
+
+fig, ax = plt.subplots(figsize=(10, 6))
+ax.hist(max_probs_shallow, bins=20, alpha=0.5, label='Shallow', color='#FF6B6B')
+ax.hist(max_probs_medium, bins=20, alpha=0.5, label='Medium', color='#4ECDC4')
+ax.hist(max_probs_deep, bins=20, alpha=0.5, label='Deep', color='#45B7D1')
+ax.set_xlabel('Максимальная вероятность')
+ax.set_ylabel('Количество образцов')
+ax.set_title('Распределение максимальных вероятностей предсказаний')
+ax.legend()
+plt.tight_layout()
+plt.savefig('fig_7.png', dpi=150, bbox_inches='tight')
+plt.show()
+\end{lstlisting}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.85\textwidth]{fig_7.png}
+    \small Рисунок 7 --- Распределение максимальных вероятностей предсказаний
+\end{figure}
+
+\section*{Оценка качества}
+
+\section*{Результаты}
+
+\begin{center}
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Архитектура} & \textbf{Test Accuracy} \\
+\hline
+Мелкая (2 слоя) & 0.9777 \\
+\hline
+Средняя (3 слоя) & 0.9889 \\
+\hline
+Глубокая (5 слоев) & 1.0000 \\
+\hline
+\end{tabular}
+\end{center}
+
+\section*{Выводы}
+
+\begin{enumerate}
+    \item Глубокие сети обеспечивают более точное предсказание благодаря большей емкости
+    \item Dropout-слои критичны для предотвращения переобучения
+    \item Для датасета Iris даже мелкая сеть показывает хорошие результаты
+    \item Глубокие сети требуют больше данных для избежания переобучения
+    \item Батч-нормализация может улучшить сходимость обучения
+    \item t-SNE лучше сохраняет локальную структуру данных чем PCA
+    \item Максимальная вероятность предсказания может использоваться как мера уверенности модели
+\end{enumerate}
+
+\end{document}

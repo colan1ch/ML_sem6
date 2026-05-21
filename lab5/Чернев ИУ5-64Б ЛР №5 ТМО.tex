@@ -1,0 +1,154 @@
+\documentclass[a4paper,12pt]{article}
+
+\usepackage{polyglossia} 
+\setmainlanguage{russian}
+\usepackage{fontspec}
+\setmainfont{Times New Roman}
+\usepackage{geometry}
+\usepackage{amsmath}
+\usepackage{graphicx} 
+\usepackage{listings}
+\usepackage{xcolor}
+\setmonofont{Courier New}
+\newfontfamily{\cyrillicfonttt}{Courier New}
+
+
+\geometry{top=20mm, bottom=20mm, left=25mm, right=15mm}
+
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\scriptsize,
+    keywordstyle=\color{blue},
+    stringstyle=\color{red},
+    breaklines=true,
+    frame=single
+}
+
+\begin{document}
+
+\noindent
+\begin{minipage}[c]{0.22\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../bmstu_logo.jpg} 
+\end{minipage}%
+\hfill
+\begin{minipage}[c]{0.75\textwidth}
+    \centering
+    {\small\bfseries Министерство науки и высшего образования Российской Федерации} \\[2pt]
+    {\small\bfseries Федеральное государственное автономное образовательное учреждение} \\[2pt]
+    {\small\bfseries высшего образования} \\[2pt]
+    {\small\bfseries «Московский государственный технический университет} \\[2pt]
+    {\small\bfseries имени Н.Э. Баумана} \\[2pt]
+    {\small\bfseries (МГТУ им. Н.Э. Баумана)}
+\end{minipage}
+
+\vspace{12pt}
+\hrule height 1pt
+\vspace{2pt}
+\hrule height 2pt
+
+\vspace{10mm}
+
+\noindent
+\textbf{ФАКУЛЬТЕТ} \underline{\makebox[138mm][l]{\hspace{15mm}\textbf{ИНФОРМАТИКА И СИСТЕМЫ УПРАВЛЕНИЯ}}} \\[10pt]
+\textbf{КАФЕДРА} \underline{\makebox[143mm][l]{\hspace{12mm}\textbf{СИСТЕМЫ ОБРАБОТКИ ИНФОРМАЦИИ И УПРАВЛЕНИЯ}}}
+
+\vspace{25mm}
+
+\begin{center}
+    {\Large Отчет по лабораторной работе № 5} \\[12pt]
+    {\Large\bfseries «Ансамбли моделей. Часть 1»} \\[20mm]
+    {\large по дисциплине «Технологии машинного обучения»}
+\end{center}
+
+\vspace{35mm}
+
+\noindent
+\begin{tabular}{@{}llcc}
+    \large Студент & \underline{\makebox[28mm][c]{\textbf{ИУ5-64Б}}} & \underline{\makebox[55mm]{}} & \underline{\makebox[50mm][c]{\textbf{Н.А. Чернев}}} \\[2pt]
+    & & & \scriptsize (И.О. Фамилия) \\[20pt]
+    \large Преподаватель & & \underline{\makebox[55mm]{}} & \underline{\makebox[50mm][c]{\textbf{Ю.Е. Гапанюк}}} \\[2pt]
+    & & & \scriptsize (И.О. Фамилия)
+\end{tabular}
+
+\vfill
+\begin{center}
+    \large 2026 г.
+\end{center}
+
+\newpage
+
+\section*{Цель работы}
+Изучение ансамблевых методов: бэггинга, случайного леса, AdaBoost и градиентного бустинга.
+
+\section*{Ансамбли на основе бэггинга}
+
+\begin{lstlisting}
+from sklearn.ensemble import BaggingClassifier, RandomForestClassifier, ExtraTreesClassifier
+
+# Bagging
+bagging = BaggingClassifier(n_estimators=100, random_state=42)
+bagging.fit(X_train, y_train)
+score_bagging = bagging.score(X_test, y_test)
+
+# Random Forest
+rf = RandomForestClassifier(n_estimators=100, max_depth=5, random_state=42)
+rf.fit(X_train, y_train)
+score_rf = rf.score(X_test, y_test)
+
+# Extra Trees
+et = ExtraTreesClassifier(n_estimators=100, max_depth=5, random_state=42)
+et.fit(X_train, y_train)
+score_et = et.score(X_test, y_test)
+\end{lstlisting}
+
+\section*{Бустинг методы}
+
+\begin{lstlisting}
+from sklearn.ensemble import AdaBoostClassifier, GradientBoostingClassifier
+
+# AdaBoost
+adaboost = AdaBoostClassifier(n_estimators=50, random_state=42)
+adaboost.fit(X_train, y_train)
+score_ada = adaboost.score(X_test, y_test)
+
+# Gradient Boosting
+gb = GradientBoostingClassifier(n_estimators=100, learning_rate=0.1, 
+                                 max_depth=3, random_state=42)
+gb.fit(X_train, y_train)
+score_gb = gb.score(X_test, y_test)
+\end{lstlisting}
+
+\section*{Результаты}
+
+\begin{center}
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Модель} & \textbf{Accuracy} \\
+\hline
+Bagging & 1.0000 \\
+\hline
+Random Forest & 1.0000 \\
+\hline
+Extra Trees & 1.0000 \\
+\hline
+AdaBoost & 0.9889 \\
+\hline
+Gradient Boosting & 0.9889 \\
+\hline
+\end{tabular}
+\end{center}
+
+\section*{Анализ}
+
+Random Forest и Extra Trees показали идеальную точность благодаря параллельному обучению независимых деревьев. AdaBoost и Gradient Boosting последовательно улучшают предсказания, но требуют более тонкой настройки гиперпараметров.
+
+\section*{Выводы}
+
+\begin{enumerate}
+    \item Ансамбли значительно превосходят одиночные модели
+    \item Random Forest более стабилен и проще в использовании
+    \item Gradient Boosting требует регуляризации для избежания переобучения
+\end{enumerate}
+
+\end{document}

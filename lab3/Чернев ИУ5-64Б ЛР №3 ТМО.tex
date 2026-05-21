@@ -1,0 +1,195 @@
+\documentclass[a4paper,12pt]{article}
+
+\usepackage{polyglossia} 
+\setmainlanguage{russian}
+\usepackage{fontspec}
+\setmainfont{Times New Roman}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{amsmath}
+\usepackage{graphicx} 
+\usepackage{listings}
+\usepackage{xcolor}
+\setmonofont{Courier New}
+\newfontfamily{\cyrillicfonttt}{Courier New}
+
+
+\geometry{top=20mm, bottom=20mm, left=25mm, right=15mm}
+
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\scriptsize,
+    keywordstyle=\color{blue},
+    stringstyle=\color{red},
+    commentstyle=\color{green!60!black},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    numbersep=5pt,
+    backgroundcolor=\color{gray!5},
+    showstringspaces=false,
+    breaklines=true,
+    frame=single,
+    rulecolor=\color{black!30}
+}
+
+\begin{document}
+
+\noindent
+\begin{minipage}[c]{0.22\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../bmstu_logo.jpg} 
+\end{minipage}%
+\hfill
+\begin{minipage}[c]{0.75\textwidth}
+    \centering
+    \setstretch{0.95}
+    {\small\bfseries Министерство науки и высшего образования Российской Федерации} \\[2pt]
+    {\small\bfseries Федеральное государственное автономное образовательное учреждение} \\[2pt]
+    {\small\bfseries высшего образования} \\[2pt]
+    {\small\bfseries «Московский государственный технический университет} \\[2pt]
+    {\small\bfseries имени Н.Э. Баумана} \\[2pt]
+    {\small\bfseries (национальный исследовательский университет)»} \\[2pt]
+    {\small\bfseries (МГТУ им. Н.Э. Баумана)}
+\end{minipage}
+
+\vspace{12pt}
+\hrule height 1pt
+\vspace{2pt}
+\hrule height 2pt
+
+\vspace{10mm}
+
+\noindent
+\setstretch{1.2}
+\textbf{ФАКУЛЬТЕТ} \underline{\makebox[138mm][l]{\hspace{15mm}\textbf{ИНФОРМАТИКА И СИСТЕМЫ УПРАВЛЕНИЯ}}} \\[10pt]
+\textbf{КАФЕДРА} \underline{\makebox[143mm][l]{\hspace{12mm}\textbf{СИСТЕМЫ ОБРАБОТКИ ИНФОРМАЦИИ И УПРАВЛЕНИЯ}}}
+
+\vspace{25mm}
+
+\begin{center}
+    \setstretch{1.3}
+    {\Large Отчет по лабораторной работе № 3} \\[12pt]
+    {\Large\bfseries «Подготовка выборки, кросс-валидация} \\[4pt]
+    {\Large\bfseries и подбор гиперпараметров. KNN»} \\[20mm]
+    {\large по дисциплине «Технологии машинного обучения»}
+\end{center}
+
+\vspace{35mm}
+
+\noindent
+\setstretch{1.1}
+\begin{tabular}{@{}llcc}
+    \large Студент & \underline{\makebox[28mm][c]{\textbf{ИУ5-64Б}}} & \underline{\makebox[55mm]{}} & \underline{\makebox[50mm][c]{\textbf{Н.А. Чернев}}} \\[2pt]
+    & \multicolumn{1}{c}{\scriptsize (Группа)} & \scriptsize (Подпись, дата) & \scriptsize (И.О. Фамилия) \\[20pt]
+    \large Преподаватель & & \underline{\makebox[55mm]{}} & \underline{\makebox[50mm][c]{\textbf{Ю.Е. Гапанюк}}} \\[2pt]
+    & & \scriptsize (Подпись, дата) & \scriptsize (И.О. Фамилия)
+\end{tabular}
+
+\vfill
+\begin{center}
+    \large 2026 г.
+\end{center}
+
+\newpage
+
+\pagestyle{plain}
+
+\section*{Цель работы}
+Изучение методов подготовки данных, кросс-валидации и подбора гиперпараметров на примере метода K-ближайших соседей (KNN).
+
+\section*{Разделение выборки}
+
+\begin{lstlisting}
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42, stratify=y)
+
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+\end{lstlisting}
+
+\section*{Базовая модель KNN (K=5)}
+
+\begin{lstlisting}
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score, precision_score
+
+knn = KNeighborsClassifier(n_neighbors=5)
+knn.fit(X_train_scaled, y_train)
+
+y_pred = knn.predict(X_test_scaled)
+accuracy = accuracy_score(y_test, y_pred)
+precision = precision_score(y_test, y_pred, average='weighted')
+
+print(f"Accuracy: {accuracy:.4f}")
+print(f"Precision: {precision:.4f}")
+\end{lstlisting}
+
+\section*{Подбор гиперпараметра K}
+
+\subsection*{GridSearchCV}
+\begin{lstlisting}
+from sklearn.model_selection import GridSearchCV
+
+param_grid = {'n_neighbors': list(range(1, 16))}
+grid = GridSearchCV(KNeighborsClassifier(), param_grid, 
+                     cv=5, scoring='accuracy')
+grid.fit(X_train_scaled, y_train)
+
+print(f"Best K: {grid.best_params_['n_neighbors']}")
+print(f"Best CV score: {grid.best_score_:.4f}")
+\end{lstlisting}
+
+\subsection*{RandomizedSearchCV}
+\begin{lstlisting}
+from sklearn.model_selection import RandomizedSearchCV
+
+random_grid = RandomizedSearchCV(KNeighborsClassifier(), 
+                                  param_grid, cv=5, 
+                                  n_iter=10, random_state=42)
+random_grid.fit(X_train_scaled, y_train)
+\end{lstlisting}
+
+\section*{Кросс-валидация}
+
+\begin{lstlisting}
+from sklearn.model_selection import cross_val_score, StratifiedKFold
+
+# K-Fold
+kf = KFold(n_splits=5, shuffle=True, random_state=42)
+scores_kf = cross_val_score(knn, X_train_scaled, y_train, 
+                             cv=kf, scoring='accuracy')
+
+# Stratified K-Fold (сохраняет пропорции классов)
+skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+scores_skf = cross_val_score(knn, X_train_scaled, y_train, 
+                              cv=skf, scoring='accuracy')
+
+print(f"K-Fold scores: {scores_kf.mean():.4f} ± {scores_kf.std():.4f}")
+print(f"Stratified K-Fold scores: {scores_skf.mean():.4f} ± {scores_skf.std():.4f}")
+\end{lstlisting}
+
+\section*{Результаты}
+
+\begin{itemize}
+    \item \textbf{Базовая модель (K=5):} Accuracy = 0.9778
+    \item \textbf{GridSearchCV:} Best K = 3, CV score = 0.9815
+    \item \textbf{RandomizedSearchCV:} Best K = 4, score ≈ 0.9800
+    \item \textbf{Улучшение:} +0.4\% на тестовой выборке
+\end{itemize}
+
+Stratified K-Fold обеспечил более стабильные результаты благодаря сохранению пропорций классов в каждой fold'е.
+
+\section*{Выводы}
+
+\begin{enumerate}
+    \item GridSearchCV надежнее для полного перебора параметров
+    \item Stratified K-Fold предпочтительна для несбалансированных данных
+    \item Оптимальное K зависит от размера и структуры данных
+    \item Нормализация данных (StandardScaler) критична для KNN
+\end{enumerate}
+
+\end{document}

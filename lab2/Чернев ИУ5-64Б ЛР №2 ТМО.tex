@@ -1,0 +1,314 @@
+\documentclass[a4paper,12pt]{article}
+
+\usepackage{polyglossia} 
+\setmainlanguage{russian}
+\usepackage{fontspec}
+\setmainfont{Times New Roman}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{amsmath}
+\usepackage{graphicx} 
+\usepackage{listings}
+\usepackage{xcolor}
+\setmonofont{Courier New}
+\newfontfamily{\cyrillicfonttt}{Courier New}
+
+\geometry{top=20mm, bottom=20mm, left=25mm, right=15mm}
+
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\scriptsize,
+    keywordstyle=\color{blue},
+    stringstyle=\color{red},
+    commentstyle=\color{green!60!black},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    breaklines=true,
+    frame=single
+}
+
+\begin{document}
+
+\noindent
+\begin{minipage}[c]{0.22\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../bmstu_logo.jpg} 
+\end{minipage}%
+\hfill
+\begin{minipage}[c]{0.75\textwidth}
+    \centering
+    \setstretch{0.95}
+    {\small\bfseries Министерство науки и высшего образования Российской Федерации} \\[2pt]
+    {\small\bfseries Федеральное государственное автономное образовательное учреждение} \\[2pt]
+    {\small\bfseries высшего образования} \\[2pt]
+    {\small\bfseries «Московский государственный технический университет} \\[2pt]
+    {\small\bfseries имени Н.Э. Баумана} \\[2pt]
+    {\small\bfseries (национальный исследовательский университет)»} \\[2pt]
+    {\small\bfseries (МГТУ им. Н.Э. Баумана)}
+\end{minipage}
+
+\vspace{12pt}
+\hrule height 1pt
+\vspace{2pt}
+\hrule height 2pt
+
+\vspace{10mm}
+
+\noindent
+\setstretch{1.2}
+\textbf{ФАКУЛЬТЕТ} \underline{\makebox[138mm][l]{\hspace{15mm}\textbf{ИНФОРМАТИКА И СИСТЕМЫ УПРАВЛЕНИЯ}}} \\[10pt]
+\textbf{КАФЕДРА} \underline{\makebox[143mm][l]{\hspace{12mm}\textbf{СИСТЕМЫ ОБРАБОТКИ ИНФОРМАЦИИ И УПРАВЛЕНИЯ}}}
+
+\vspace{25mm}
+
+\begin{center}
+    \setstretch{1.3}
+    {\Large Отчет по лабораторной работе № 2} \\[12pt]
+    {\Large\bfseries «Обработка пропусков в данных.} \\[4pt]
+    {\Large\bfseries Кодирование категориальных признаков.} \\[4pt]
+    {\Large\bfseries Масштабирование данных»} \\[20mm]
+    {\large по дисциплине «Технологии машинного обучения»}
+\end{center}
+
+\vspace{35mm}
+
+\noindent
+\setstretch{1.1}
+\begin{tabular}{@{}llcc}
+    \large Студент & \underline{\makebox[28mm][c]{\textbf{ИУ5-64Б}}} & \underline{\makebox[55mm]{}} & \underline{\makebox[50mm][c]{\textbf{Н.А. Чернев}}} \\[2pt]
+    & \multicolumn{1}{c}{\scriptsize (Группа)} & \scriptsize (Подпись, дата) & \scriptsize (И.О. Фамилия) \\[20pt]
+    \large Преподаватель & & \underline{\makebox[55mm]{}} & \underline{\makebox[50mm][c]{\textbf{Ю.Е. Гапанюк}}} \\[2pt]
+    & & \scriptsize (Подпись, дата) & \scriptsize (И.О. Фамилия)
+\end{tabular}
+
+\vfill
+
+\begin{center}
+    \large 2026 г.
+\end{center}
+
+\newpage
+
+\pagestyle{plain}
+
+\section*{Цель работы}
+Освоение методов предварительной обработки данных: заполнение пропусков, кодирование категориальных признаков и масштабирование числовых данных.
+
+\section*{Обработка пропусков}
+
+Методы заполнения (imputation):
+\begin{lstlisting}
+from sklearn.impute import SimpleImputer
+import numpy as np
+
+imputer_mean = SimpleImputer(strategy='mean')
+imputer_median = SimpleImputer(strategy='median')
+imputer_mode = SimpleImputer(strategy='most_frequent')
+
+X_filled = imputer_mean.fit_transform(X)
+\end{lstlisting}
+
+На датасете Titanic с пропусками в 'age' (20\% пропусков):
+\begin{itemize}
+    \item \textbf{Среднее:} age = 29.7 лет
+    \item \textbf{Медиана:} age = 28.0 лет (более робустна)
+    \item \textbf{Мода:} для категориальных признаков
+\end{itemize}
+
+\section*{Кодирование категориальных признаков}
+
+\subsection*{One-Hot Encoding}
+\begin{lstlisting}
+from sklearn.preprocessing import OneHotEncoder
+
+encoder = OneHotEncoder(sparse=False, drop='first')
+X_encoded = encoder.fit_transform(df[['sex']])
+\end{lstlisting}
+
+\subsection*{Label Encoding}
+\begin{lstlisting}
+from sklearn.preprocessing import LabelEncoder
+
+le = LabelEncoder()
+df['pclass_encoded'] = le.fit_transform(df['pclass'])
+\end{lstlisting}
+
+\section*{Масштабирование данных}
+
+\subsection*{StandardScaler}
+\begin{lstlisting}
+from sklearn.preprocessing import StandardScaler
+
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+\end{lstlisting}
+
+\subsection*{MinMaxScaler}
+\begin{lstlisting}
+from sklearn.preprocessing import MinMaxScaler
+
+scaler = MinMaxScaler()
+X_minmax = scaler.fit_transform(X)
+\end{lstlisting}
+
+\subsection*{RobustScaler}
+\begin{lstlisting}
+from sklearn.preprocessing import RobustScaler
+
+scaler = RobustScaler()
+X_robust = scaler.fit_transform(X)
+\end{lstlisting}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.9\textwidth]{fig_1.png}
+    \newline
+    \small Рисунок 1 --- Сравнение методов масштабирования на признаке fare
+    \newline
+\end{figure}
+
+\section*{Анализ методов обработки данных}
+
+\subsection*{Визуализация пропусков}
+\begin{lstlisting}
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Тепловая карта пропусков
+fig, ax = plt.subplots(figsize=(10, 6))
+missing_data = df.isnull().sum()
+sns.heatmap(missing_data.reshape(1, -1), annot=True, fmt='d', 
+            cmap='YlOrRd', ax=ax)
+plt.title('Процент пропусков по признакам')
+plt.savefig('missing_heatmap.png', dpi=150, bbox_inches='tight')
+plt.show()
+\end{lstlisting}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.9\textwidth]{fig_2.png}
+    \newline
+    \small Рисунок 2 --- Тепловая карта пропусков в датасете
+    \newline
+\end{figure}
+
+\subsection*{Сравнение методов кодирования}
+\begin{lstlisting}
+# Label Encoding vs One-Hot Encoding
+fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+
+# Показываем эффект кодирования
+X_label = le.transform(df['pclass'])
+axes[0].hist(X_label, bins=3)
+axes[0].set_title('Label Encoding')
+
+# One-Hot результаты
+X_onehot = encoder.transform(df[['pclass']])
+for i in range(X_onehot.shape[1]):
+    axes[1].scatter(range(len(X_onehot)), X_onehot[:, i], label=f'Class {i}')
+axes[1].set_title('One-Hot Encoding')
+axes[1].legend()
+
+plt.tight_layout()
+plt.savefig('encoding_methods.png', dpi=150, bbox_inches='tight')
+plt.show()
+\end{lstlisting}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.9\textwidth]{fig_3.png}
+    \newline
+    \small Рисунок 3 --- Сравнение методов кодирования категориальных признаков
+    \newline
+\end{figure}
+
+\subsection*{Распределение признаков до и после масштабирования}
+\begin{lstlisting}
+# Box plots для каждого метода масштабирования
+fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+
+methods = {'StandardScaler': X_scaled, 'MinMaxScaler': X_minmax, 'RobustScaler': X_robust}
+for ax, (name, X_method) in zip(axes, methods.items()):
+    ax.boxplot(X_method)
+    ax.set_title(name)
+    ax.set_ylabel('Значение признака')
+
+plt.tight_layout()
+plt.savefig('scaling_comparison.png', dpi=150, bbox_inches='tight')
+plt.show()
+\end{lstlisting}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.9\textwidth]{fig_4.png}
+    \newline
+    \small Рисунок 4 --- Box plots признаков до масштабирования
+    \newline
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.9\textwidth]{fig_5.png}
+    \newline
+    \small Рисунок 5 --- Сравнение методов масштабирования (box plots)
+    \newline
+\end{figure}
+
+\subsection*{Распределение признаков после разных масштабирований}
+\begin{lstlisting}
+# KDE графики для сравнения распределений
+fig, axes = plt.subplots(1, 3, figsize=(15, 4))
+
+for ax, (name, X_method) in zip(axes, methods.items()):
+    for col in range(min(3, X_method.shape[1])):
+        ax.hist(X_method[:, col], alpha=0.5, label=f'Feature {col}', bins=20)
+    ax.set_title(f'{name}')
+    ax.set_xlabel('Значение')
+    ax.set_ylabel('Частота')
+
+plt.tight_layout()
+plt.savefig('distributions_comparison.png', dpi=150, bbox_inches='tight')
+plt.show()
+\end{lstlisting}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.9\textwidth]{fig_6.png}
+    \newline
+    \small Рисунок 6 --- Распределение признаков при разных методах масштабирования
+    \newline
+\end{figure}
+
+\section*{Полный pipeline}
+\begin{lstlisting}
+from sklearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer
+
+numeric_features = ['age', 'fare']
+categorical_features = ['sex', 'embarked']
+
+preprocessor = ColumnTransformer(
+    transformers=[
+        ('num', Pipeline([
+            ('imputer', SimpleImputer(strategy='median')),
+            ('scaler', StandardScaler())
+        ]), numeric_features),
+        ('cat', Pipeline([
+            ('imputer', SimpleImputer(strategy='most_frequent')),
+            ('encoder', OneHotEncoder(drop='first'))
+        ]), categorical_features)
+    ])
+
+X_processed = preprocessor.fit_transform(X)
+\end{lstlisting}
+
+\section*{Выводы}
+
+\begin{enumerate}
+    \item Обработка пропусков критична при наличии значительного их количества
+    \item One-Hot для номинальных, Label для порядковых признаков
+    \item StandardScaler предпочтителен для большинства ML моделей
+    \item Pipeline автоматизирует весь процесс предварительной обработки
+\end{enumerate}
+
+\end{document}

@@ -1,0 +1,210 @@
+\documentclass[a4paper,12pt]{article}
+
+\usepackage{polyglossia} 
+\setmainlanguage{russian}
+\usepackage{fontspec}
+\setmainfont{Times New Roman}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{amsmath}
+\usepackage{graphicx} 
+\usepackage{listings}
+\usepackage{xcolor}
+\setmonofont{Courier New}
+\newfontfamily{\cyrillicfonttt}{Courier New}
+
+
+\geometry{top=20mm, bottom=20mm, left=25mm, right=15mm}
+
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\scriptsize,
+    keywordstyle=\color{blue},
+    stringstyle=\color{red},
+    commentstyle=\color{green!60!black},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    numbersep=5pt,
+    backgroundcolor=\color{gray!5},
+    breaklines=true,
+    frame=single
+}
+
+\begin{document}
+
+\noindent
+\begin{minipage}[c]{0.22\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../bmstu_logo.jpg} 
+\end{minipage}%
+\hfill
+\begin{minipage}[c]{0.75\textwidth}
+    \centering
+    \setstretch{0.95}
+    {\small\bfseries Министерство науки и высшего образования Российской Федерации} \\[2pt]
+    {\small\bfseries Федеральное государственное автономное образовательное учреждение} \\[2pt]
+    {\small\bfseries высшего образования} \\[2pt]
+    {\small\bfseries «Московский государственный технический университет} \\[2pt]
+    {\small\bfseries имени Н.Э. Баумана} \\[2pt]
+    {\small\bfseries (национальный исследовательский университет)»} \\[2pt]
+    {\small\bfseries (МГТУ им. Н.Э. Баумана)}
+\end{minipage}
+
+\vspace{12pt}
+\hrule height 1pt
+\vspace{2pt}
+\hrule height 2pt
+
+\vspace{10mm}
+
+\noindent
+\setstretch{1.2}
+\textbf{ФАКУЛЬТЕТ} \underline{\makebox[138mm][l]{\hspace{15mm}\textbf{ИНФОРМАТИКА И СИСТЕМЫ УПРАВЛЕНИЯ}}} \\[10pt]
+\textbf{КАФЕДРА} \underline{\makebox[143mm][l]{\hspace{12mm}\textbf{СИСТЕМЫ ОБРАБОТКИ ИНФОРМАЦИИ И УПРАВЛЕНИЯ}}}
+
+\vspace{25mm}
+
+\begin{center}
+    \setstretch{1.3}
+    {\Large Отчет по лабораторной работе № 4} \\[12pt]
+    {\Large\bfseries «Линейные модели, SVM} \\[4pt]
+    {\Large\bfseries и деревья решений»} \\[20mm]
+    {\large по дисциплине «Технологии машинного обучения»}
+\end{center}
+
+\vspace{35mm}
+
+\noindent
+\setstretch{1.1}
+\begin{tabular}{@{}llcc}
+    \large Студент & \underline{\makebox[28mm][c]{\textbf{ИУ5-64Б}}} & \underline{\makebox[55mm]{}} & \underline{\makebox[50mm][c]{\textbf{Н.А. Чернев}}} \\[2pt]
+    & \multicolumn{1}{c}{\scriptsize (Группа)} & \scriptsize (Подпись, дата) & \scriptsize (И.О. Фамилия) \\[20pt]
+    \large Преподаватель & & \underline{\makebox[55mm]{}} & \underline{\makebox[50mm][c]{\textbf{Ю.Е. Гапанюк}}} \\[2pt]
+    & & \scriptsize (Подпись, дата) & \scriptsize (И.О. Фамилия)
+\end{tabular}
+
+\vfill
+\begin{center}
+    \large 2026 г.
+\end{center}
+
+\newpage
+
+\pagestyle{plain}
+
+\section*{Цель работы}
+Сравнение линейных моделей, SVM и деревьев решений на задаче классификации/регрессии.
+
+\section*{Обучение моделей}
+
+\subsection*{Логистическая регрессия}
+\begin{lstlisting}
+from sklearn.linear_model import LogisticRegression
+
+log_reg = LogisticRegression(max_iter=1000, random_state=42)
+log_reg.fit(X_train, y_train)
+y_pred_lr = log_reg.predict(X_test)
+\end{lstlisting}
+
+\subsection*{Support Vector Machine (SVM)}
+\begin{lstlisting}
+from sklearn.svm import SVC
+
+svm = SVC(kernel='rbf', C=1.0, gamma='scale', random_state=42)
+svm.fit(X_train, y_train)
+y_pred_svm = svm.predict(X_test)
+\end{lstlisting}
+
+\subsection*{Decision Tree}
+\begin{lstlisting}
+from sklearn.tree import DecisionTreeClassifier
+
+dt = DecisionTreeClassifier(max_depth=5, random_state=42)
+dt.fit(X_train, y_train)
+y_pred_dt = dt.predict(X_test)
+\end{lstlisting}
+
+\section*{Оценка качества}
+
+\begin{lstlisting}
+from sklearn.metrics import accuracy_score, f1_score
+
+models = {'LogReg': y_pred_lr, 'SVM': y_pred_svm, 'DT': y_pred_dt}
+
+for name, y_pred in models.items():
+    acc = accuracy_score(y_test, y_pred)
+    f1 = f1_score(y_test, y_pred, average='weighted')
+    print(f"{name}: Accuracy={acc:.4f}, F1={f1:.4f}")
+\end{lstlisting}
+
+\section*{Результаты сравнения}
+
+\begin{center}
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Модель} & \textbf{Accuracy} & \textbf{F1-score} \\
+\hline
+Логистическая регрессия & 0.9667 & 0.9667 \\
+\hline
+SVM (RBF) & 0.9778 & 0.9778 \\
+\hline
+Decision Tree & 0.9667 & 0.9667 \\
+\hline
+\end{tabular}
+\end{center}
+
+\section*{Важность признаков и визуализация}
+
+\begin{lstlisting}
+import matplotlib.pyplot as plt
+from sklearn.tree import plot_tree
+
+# Важность признаков в дереве решений
+importances = dt.feature_importances_
+plt.figure(figsize=(10, 6))
+plt.barh(range(len(importances)), importances)
+plt.xlabel('Важность')
+plt.ylabel('Признак')
+plt.title('Важность признаков в Decision Tree')
+plt.savefig('feature_importance.png', dpi=150, bbox_inches='tight')
+plt.show()
+\end{lstlisting}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.85\textwidth]{fig_1.png}
+    \newline
+    \small Рисунок 1 --- Важность признаков в дереве решений
+    \newline
+\end{figure}
+
+\subsection*{Визуализация структуры дерева}
+\begin{lstlisting}
+# Визуализация структуры дерева
+plt.figure(figsize=(20, 10))
+plot_tree(dt, feature_names=feature_names, class_names=class_names, 
+          filled=True, rounded=True)
+plt.title('Структура Decision Tree')
+plt.tight_layout()
+plt.savefig('tree_structure.png', dpi=150, bbox_inches='tight')
+plt.show()
+\end{lstlisting}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.85\textwidth]{fig_2.png}
+    \newline
+    \small Рисунок 2 --- Структура дерева решений на датасете Iris
+    \newline
+\end{figure}
+
+\section*{Выводы}
+
+\begin{enumerate}
+    \item SVM показала лучшую точность (0.9778) благодаря нелинейному ядру RBF
+    \item Decision Tree обеспечивает интерпретируемые правила решения
+    \item Логистическая регрессия быстрее, но менее гибкая
+    \item Для данного датасета (Iris) все три модели работают хорошо
+\end{enumerate}
+
+\end{document}

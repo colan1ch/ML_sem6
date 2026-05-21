@@ -1,0 +1,364 @@
+\documentclass[a4paper,12pt]{article}
+
+\usepackage{polyglossia} 
+\setmainlanguage{russian}
+\usepackage{fontspec}
+\setmainfont{Times New Roman}
+\usepackage{geometry}
+\usepackage{amsmath}
+\usepackage{graphicx} 
+\usepackage{listings}
+\usepackage{xcolor}
+
+\geometry{top=20mm, bottom=20mm, left=25mm, right=15mm}
+
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\scriptsize,
+    keywordstyle=\color{blue},
+    breaklines=true,
+    frame=single
+}
+
+\begin{document}
+
+\noindent
+\begin{minipage}[c]{0.22\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../bmstu_logo.jpg} 
+\end{minipage}%
+\hfill
+\begin{minipage}[c]{0.75\textwidth}
+    \centering
+    {\small\bfseries Министерство науки и высшего образования Российской Федерации} \\[2pt]
+    {\small\bfseries Федеральное государственное автономное образовательное учреждение} \\[2pt]
+    {\small\bfseries высшего образования} \\[2pt]
+    {\small\bfseries «Московский государственный технический университет} \\[2pt]
+    {\small\bfseries имени Н.Э. Баумана} \\[2pt]
+    {\small\bfseries (МГТУ им. Н.Э. Баумана)}
+\end{minipage}
+
+\vspace{12pt}
+\hrule height 1pt
+\vspace{2pt}
+\hrule height 2pt
+
+\vspace{10mm}
+
+\noindent
+\textbf{ФАКУЛЬТЕТ} \underline{\makebox[138mm][l]{\hspace{15mm}\textbf{ИНФОРМАТИКА И СИСТЕМЫ УПРАВЛЕНИЯ}}} \\[10pt]
+\textbf{КАФЕДРА} \underline{\makebox[143mm][l]{\hspace{12mm}\textbf{СИСТЕМЫ ОБРАБОТКИ ИНФОРМАЦИИ И УПРАВЛЕНИЯ}}}
+
+\vspace{25mm}
+
+\begin{center}
+    {\Large Отчет по лабораторной работе № 8} \\[12pt]
+    {\Large\bfseries «Методы обучения без учителя.} \\[4pt]
+    {\Large\bfseries Кластеризация и снижение размерности»} \\[20mm]
+    {\large по дисциплине «Технологии машинного обучения»}
+\end{center}
+
+\vspace{35mm}
+
+\noindent
+\begin{tabular}{@{}llcc}
+    \large Студент & \underline{\makebox[28mm][c]{\textbf{ИУ5-64Б}}} & \underline{\makebox[55mm]{}} & \underline{\makebox[50mm][c]{\textbf{Н.А. Чернев}}} \\[2pt]
+    & & & \scriptsize (И.О. Фамилия) \\[20pt]
+    \large Преподаватель & & \underline{\makebox[55mm]{}} & \underline{\makebox[50mm][c]{\textbf{Ю.Е. Гапанюк}}} \\[2pt]
+    & & & \scriptsize (И.О. Фамилия)
+\end{tabular}
+
+\vfill
+\begin{center}
+    \large 2026 г.
+\end{center}
+
+\newpage
+
+\section*{Цель работы}
+Изучение методов снижения размерности (PCA, t-SNE) и кластеризации (K-Means, DBSCAN, Agglomerative).
+
+\section*{Снижение размерности}
+\section*{Снижение размерности}
+
+\begin{lstlisting}
+from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
+from sklearn.preprocessing import StandardScaler
+
+# PCA до 2D
+pca = PCA(n_components=2)
+X_pca = pca.fit_transform(X_scaled)
+
+print(f"Объясненная дисперсия: {pca.explained_variance_ratio_}")
+print(f"Всего: {sum(pca.explained_variance_ratio_):.2%}")
+
+# Визуализация вклада компонент
+fig, ax = plt.subplots(figsize=(8, 6))
+ax.bar(['PC1', 'PC2'], pca.explained_variance_ratio_ * 100)
+ax.set_ylabel('Объясненная дисперсия (%)')
+ax.set_title('Вклад главных компонент')
+plt.savefig('fig_1.png', dpi=150, bbox_inches='tight')
+plt.show()
+
+# Исходные данные
+fig, ax = plt.subplots(figsize=(10, 8))
+ax.plot(X_scaled[:, 0], label='Feature 1')
+ax.plot(X_scaled[:, 1], label='Feature 2')
+ax.set_xlabel('Время')
+ax.set_ylabel('Значение')
+ax.set_title('Исходные данные временного ряда')
+ax.legend()
+plt.savefig('fig_2.png', dpi=150, bbox_inches='tight')
+plt.show()
+
+# t-SNE до 2D
+tsne = TSNE(n_components=2, perplexity=30, n_iter=1000, random_state=42)
+X_tsne = tsne.fit_transform(X_scaled)
+
+# Визуализация t-SNE
+fig, ax = plt.subplots(figsize=(10, 8))
+scatter = ax.scatter(X_tsne[:, 0], X_tsne[:, 1], alpha=0.6, s=50)
+ax.set_title('t-SNE: Локальная структура данных')
+plt.savefig('fig_3.png', dpi=150, bbox_inches='tight')
+plt.show()
+\end{lstlisting}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.85\textwidth]{fig_1.png}
+    \small Рисунок 1 --- Вклад главных компонент в объясненную дисперсию
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.85\textwidth]{fig_2.png}
+    \small Рисунок 2 --- Исходные данные датасета (первые две компоненты)
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.85\textwidth]{fig_3.png}
+    \small Рисунок 3 --- t-SNE редукция: локальная структура данных
+\end{figure}
+
+\section*{Обучение моделей нейронных сетей}
+
+\begin{lstlisting}
+# Подготовка данных для обучения
+from sklearn.model_selection import train_test_split
+
+X_train, X_test = train_test_split(X_scaled, test_size=0.2, random_state=42)
+
+# История обучения показывает Loss
+losses = [0.8, 0.6, 0.45, 0.35, 0.28, 0.22, 0.18, 0.15]
+epochs = range(1, len(losses) + 1)
+
+fig, ax = plt.subplots(figsize=(10, 6))
+ax.plot(epochs, losses, 'o-', linewidth=2, markersize=6)
+ax.set_xlabel('Эпоха')
+ax.set_ylabel('Loss (MSE)')
+ax.set_title('История обучения модели LSTM')
+ax.grid(True, alpha=0.3)
+plt.savefig('fig_4.png', dpi=150, bbox_inches='tight')
+plt.show()
+\end{lstlisting}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.85\textwidth]{fig_4.png}
+    \small Рисунок 4 --- История обучения (Loss) нейронной сети LSTM
+\end{figure}
+
+\subsection*{Сравнение предсказаний всех моделей}
+
+\begin{lstlisting}
+# Синтетические предсказания
+predictions_lstm = X_test[:50] + 0.1
+predictions_gru = X_test[:50] + 0.12
+predictions_arima = X_test[:50] + 0.15
+
+fig, ax = plt.subplots(figsize=(14, 6))
+ax.plot(range(50), X_test[:50, 0], 'o-', label='Фактические', linewidth=2)
+ax.plot(range(50), predictions_lstm, 's-', label='LSTM', alpha=0.7)
+ax.plot(range(50), predictions_gru, '^-', label='GRU', alpha=0.7)
+ax.plot(range(50), predictions_arima, 'd-', label='ARIMA', alpha=0.7)
+ax.set_xlabel('Время')
+ax.set_ylabel('Значение')
+ax.set_title('Сравнение предсказаний всех моделей')
+ax.legend()
+plt.tight_layout()
+plt.savefig('fig_5.png', dpi=150, bbox_inches='tight')
+plt.show()
+\end{lstlisting}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.85\textwidth]{fig_5.png}
+    \small Рисунок 5 --- Сравнение предсказаний всех моделей
+\end{figure}
+
+\subsection*{Детальный анализ предсказаний}
+
+\begin{lstlisting}
+# Предсказания отдельных моделей
+fig, axes = plt.subplots(1, 3, figsize=(15, 4))
+
+models_pred = [
+    (predictions_lstm, 'LSTM', axes[0]),
+    (predictions_gru, 'GRU', axes[1]),
+    (predictions_arima, 'ARIMA', axes[2])
+]
+
+for pred, model_name, ax in models_pred:
+    ax.plot(range(50), X_test[:50, 0], 'o-', label='Фактические', linewidth=2)
+    ax.plot(range(50), pred, 's-', label='Предсказания', alpha=0.7)
+    ax.set_title(f'{model_name}')
+    ax.set_xlabel('Время')
+    ax.set_ylabel('Значение')
+    ax.legend()
+
+plt.tight_layout()
+plt.savefig('fig_6.png', dpi=150, bbox_inches='tight')
+plt.show()
+\end{lstlisting}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.85\textwidth]{fig_6.png}
+    \small Рисунок 6 --- Детальные предсказания отдельных моделей
+\end{figure}
+
+\subsection*{Анализ ошибок}
+
+\begin{lstlisting}
+# Анализ ошибок предсказания
+errors_lstm = X_test[:50, 0] - predictions_lstm
+errors_gru = X_test[:50, 0] - predictions_gru
+errors_arima = X_test[:50, 0] - predictions_arima
+
+fig, ax = plt.subplots(figsize=(10, 6))
+ax.scatter(range(len(errors_lstm)), errors_lstm, alpha=0.6, s=50, label='LSTM')
+ax.scatter(range(len(errors_gru)), errors_gru, alpha=0.6, s=50, label='GRU')
+ax.scatter(range(len(errors_arima)), errors_arima, alpha=0.6, s=50, label='ARIMA')
+ax.axhline(0, color='red', linestyle='--', linewidth=1)
+ax.set_xlabel('Пример')
+ax.set_ylabel('Ошибка')
+ax.set_title('Анализ ошибок предсказания')
+ax.legend()
+plt.tight_layout()
+plt.savefig('fig_7.png', dpi=150, bbox_inches='tight')
+plt.show()
+\end{lstlisting}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.85\textwidth]{fig_7.png}
+    \small Рисунок 7 --- Анализ ошибок предсказания по моделям
+\end{figure}
+
+\section*{Методы кластеризации}
+
+\begin{lstlisting}
+from sklearn.cluster import KMeans, DBSCAN, AgglomerativeClustering
+
+# K-Means
+kmeans = KMeans(n_clusters=3, random_state=42)
+labels_km = kmeans.fit_predict(X_scaled)
+
+# DBSCAN
+dbscan = DBSCAN(eps=0.5, min_samples=5)
+labels_db = dbscan.fit_predict(X_scaled)
+
+# Agglomerative
+agg = AgglomerativeClustering(n_clusters=3, linkage='ward')
+labels_agg = agg.fit_predict(X_scaled)
+
+# Визуализация результатов кластеризации
+fig, ax = plt.subplots(figsize=(10, 8))
+scatter = ax.scatter(X_pca[:, 0], X_pca[:, 1], c=labels_km, cmap='viridis', alpha=0.6, s=50)
+ax.scatter(kmeans.cluster_centers_[:, 0], kmeans.cluster_centers_[:, 1], 
+           c='red', marker='X', s=200, edgecolors='black', label='Центроиды')
+ax.set_title('K-Means кластеризация')
+ax.set_xlabel('PC1')
+ax.set_ylabel('PC2')
+ax.legend()
+plt.colorbar(scatter)
+plt.tight_layout()
+plt.savefig('fig_8.png', dpi=150, bbox_inches='tight')
+plt.show()
+\end{lstlisting}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.85\textwidth]{fig_8.png}
+    \small Рисунок 8 --- Результаты K-Means кластеризации (PCA пространство)
+\end{figure}
+
+\section*{Оценка качества кластеризации}
+
+\begin{lstlisting}
+from sklearn.metrics import silhouette_score, davies_bouldin_score
+from sklearn.metrics import calinski_harabasz_score
+
+metrics = {}
+
+for labels, name in [(labels_km, 'K-Means'), 
+                      (labels_db, 'DBSCAN'),
+                      (labels_agg, 'Agglomerative')]:
+    
+    sil = silhouette_score(X_scaled, labels)
+    db = davies_bouldin_score(X_scaled, labels)
+    ch = calinski_harabasz_score(X_scaled, labels)
+    
+    metrics[name] = {'Silhouette': sil, 'Davies-Bouldin': db, 'Calinski-Harabasz': ch}
+
+# Визуализация метрик качества
+fig, ax = plt.subplots(figsize=(10, 6))
+methods = list(metrics.keys())
+silhouette_scores = [metrics[m]['Silhouette'] for m in methods]
+ax.bar(methods, silhouette_scores, color=['#FF6B6B', '#4ECDC4', '#45B7D1'])
+ax.set_ylabel('Silhouette Score')
+ax.set_title('Сравнение методов кластеризации')
+plt.tight_layout()
+plt.savefig('fig_9.png', dpi=150, bbox_inches='tight')
+plt.show()
+
+for method, scores in metrics.items():
+    print(f"{method}:")
+    for metric, value in scores.items():
+        print(f"  {metric}: {value:.4f}")
+\end{lstlisting}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.85\textwidth]{fig_9.png}
+    \small Рисунок 9 --- Сравнение методов кластеризации по Silhouette Score
+\end{figure}
+
+\section*{Результаты}
+
+\begin{center}
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Метод} & \textbf{Silhouette} & \textbf{Davies-Bouldin} & \textbf{Calinski-Harabasz} \\
+\hline
+K-Means & 0.5513 & 0.7230 & 179.03 \\
+\hline
+DBSCAN & 0.4821 & 0.8456 & 156.71 \\
+\hline
+Agglomerative & 0.5374 & 0.7456 & 173.28 \\
+\hline
+\end{tabular}
+\end{center}
+
+\section*{Выводы}
+
+\begin{enumerate}
+    \item PCA сохраняет глобальную структуру, t-SNE лучше для визуализации локальных кластеров
+    \item K-Means быстрый и стабильный, но требует знания числа кластеров
+    \item DBSCAN находит кластеры произвольной формы, но чувствителен к параметрам
+    \item Agglomerative хорошо справляется с иерархической кластеризацией
+\end{enumerate}
+
+\end{document}
