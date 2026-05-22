@@ -1,0 +1,220 @@
+\documentclass[a4paper,12pt]{article}
+
+\usepackage{polyglossia}
+\setmainlanguage{russian}
+\usepackage{fontspec}
+\setmainfont{Times New Roman}
+\setmonofont{Courier New}
+\newfontfamily{\cyrillicfonttt}{Courier New}
+
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\geometry{top=20mm, bottom=20mm, left=25mm, right=15mm}
+
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\scriptsize,
+    keywordstyle=\color{blue},
+    stringstyle=\color{red},
+    commentstyle=\color{green!60!black},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    breaklines=true,
+    frame=single
+}
+
+\begin{document}
+
+% --- ТИТУЛЬНЫЙ ЛИСТ ---
+\noindent
+\begin{minipage}[c]{0.22\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../bmstu_logo.jpg} 
+\end{minipage}%
+\hfill
+\begin{minipage}[c]{0.75\textwidth}
+    \centering
+    \setstretch{0.95}
+    {\small\bfseries Министерство науки и высшего образования Российской Федерации} \\[2pt]
+    {\small\bfseries Федеральное государственное автономное образовательное учреждение} \\[2pt]
+    {\small\bfseries высшего образования} \\[2pt]
+    {\small\bfseries «Московский государственный технический университет} \\[2pt]
+    {\small\bfseries имени Н.Э. Баумана} \\[2pt]
+    {\small\bfseries (национальный исследовательский университет)»} \\[2pt]
+    {\small\bfseries (МГТУ им. Н.Э. Баумана)}
+\end{minipage}
+
+\vspace{12pt}
+\hrule height 1pt
+\vspace{2pt}
+\hrule height 2pt
+
+\vspace{10mm}
+
+\noindent
+\setstretch{1.2}
+\textbf{ФАКУЛЬТЕТ} \underline{\makebox[138mm][l]{\hspace{15mm}\textbf{ИНФОРМАТИКА И СИСТЕМЫ УПРАВЛЕНИЯ}}} \\[10pt]
+\textbf{КАФЕДРА} \underline{\makebox[143mm][l]{\hspace{12mm}\textbf{СИСТЕМЫ ОБРАБОТКИ ИНФОРМАЦИИ И УПРАВЛЕНИЯ}}}
+
+\vspace{25mm}
+
+\begin{center}
+    \setstretch{1.3}
+    {\Large Отчет по лабораторной работе № 7} \\[12pt]
+    {\Large\bfseries «Ансамбли моделей машинного обучения. Часть 2»} \\[4pt]
+    {\large по дисциплине «Технологии машинного обучения»}
+\end{center}
+
+\vspace{35mm}
+
+\noindent
+\setstretch{1.1}
+\begin{tabular}{@{}llcc}
+    \large Студент & \underline{\makebox[28mm][c]{\textbf{ИУ5-64Б}}} & \underline{\makebox[55mm]{}} & \underline{\makebox[50mm][c]{\textbf{Н.А. Чернев}}} \\[2pt]
+    & \multicolumn{1}{c}{\scriptsize (Группа)} & \scriptsize (Подпись, дата) & \scriptsize (И.О. Фамилия) \\[20pt]
+    \large Преподаватель & & \underline{\makebox[55mm]{}} & \underline{\makebox[50mm][c]{\textbf{Ю.Е. Гапанюк}}} \\[2pt]
+    & & \scriptsize (Подпись, дата) & \scriptsize (И.О. Фамилия)
+\end{tabular}
+
+\vfill
+\begin{center}
+    \large 2026 г.
+\end{center}
+
+\newpage
+
+\section*{Цель работы}
+Изучение ансамблей моделей машинного обучения: стекинг и многослойный персептрон (MLP) на примере датасета Diabetes (прогнозирование прогрессии диабета).
+
+\section*{Описание задания}
+\begin{enumerate}
+    \item Выбрать набор данных для решения задачи регрессии (Diabetes Dataset).
+    \item При необходимости выполнить предобработку данных (масштабирование).
+    \item Разделить выборку на обучающую (80\%) и тестовую (20\%) с помощью \texttt{train\_test\_split}.
+    \item Обучить ансамблевые модели:
+    \begin{itemize}
+        \item Стекинг (Stacking) — комбинация нескольких базовых моделей с мета-моделью.
+        \item Многослойный персептрон (MLP) — нейросетевая модель.
+    \end{itemize}
+    \item Оценить качество моделей с помощью метрик MSE, MAE, R².
+    \item Сравнить качество полученных моделей.
+\end{enumerate}
+
+\section*{Загрузка и подготовка данных}
+Был загружен датасет Diabetes, содержащий 442 образца и 10 признаков. Целевая переменная — количественная характеристика прогрессии диабета. Данные были нормализованы с помощью StandardScaler и разделены на обучающую (80\%) и тестовую (20\%) выборки.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.9\textwidth]{fig_1.png}
+    \newline
+    \text Рисунок 1 --- Сравнение качества моделей
+    \newline
+\end{figure}
+
+\section*{Стекинг (Stacking)}
+
+Стекинг — это метод ансамблирования, который комбинирует предсказания нескольких базовых моделей (уровень 0) с помощью мета-модели (уровень 1). В данной работе в качестве базовых моделей использовались:
+\begin{itemize}
+    \item LinearRegression
+    \item Ridge(alpha=1.0)
+    \item Ridge(alpha=10.0)
+    \item Ridge(alpha=100.0)
+\end{itemize}
+В качестве мета-модели использовалась Ridge(alpha=1.0).
+
+\subsection*{Листинг кода}
+\begin{lstlisting}
+class StackingRegressor:
+    def __init__(self, base_models, meta_model):
+        self.base_models = base_models
+        self.meta_model = meta_model
+    
+    def fit(self, X, y):
+        meta_features = np.zeros((X.shape[0], len(self.base_models)))
+        for i, model in enumerate(self.base_models):
+            model.fit(X, y)
+            meta_features[:, i] = model.predict(X)
+        self.meta_model.fit(meta_features, y)
+        return self
+    
+    def predict(self, X):
+        meta_features = np.zeros((X.shape[0], len(self.base_models)))
+        for i, model in enumerate(self.base_models):
+            meta_features[:, i] = model.predict(X)
+        return self.meta_model.predict(meta_features)
+\end{lstlisting}
+
+\section*{Многослойный персептрон (MLP)}
+
+Многослойный персептрон — это нейронная сеть с одним или несколькими скрытыми слоями. В данной работе использовалась архитектура: 10 → 100 → 100 → 50 → 1 с функцией активации ReLU и оптимизатором Adam. Для предотвращения переобучения использовался EarlyStopping.
+
+\begin{lstlisting}
+from sklearn.neural_network import MLPRegressor
+
+mlp_model = MLPRegressor(
+    hidden_layer_sizes=(100, 100, 50),
+    activation='relu',
+    solver='adam',
+    max_iter=1000,
+    random_state=42,
+    early_stopping=True,
+    validation_fraction=0.1,
+    n_iter_no_change=50,
+    verbose=0
+)
+\end{lstlisting}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.9\textwidth]{fig_2.png}
+    \newline
+    \text Рисунок 2 --- Предсказания vs Реальные значения
+    \newline
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.9\textwidth]{fig_3.png}
+    \newline
+    \text Рисунок 3 --- Распределение ошибок предсказаний
+    \newline
+\end{figure}
+
+\section*{Результаты прогнозирования}
+
+\subsection*{Сравнение всех моделей}
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{|l|c|c|c|}
+        \hline
+        \textbf{Модель} & \textbf{MSE} & \textbf{MAE} & \textbf{R²} \\
+        \hline
+        Stacking & 2900.24 & 42.79 & 0.453 \\
+        \hline
+        MLP Regressor & 2939.13 & 43.51 & 0.445 \\
+        \hline
+    \end{tabular}
+    \caption{Сравнение метрик качества прогнозирования}
+\end{table}
+
+\section*{Выводы}
+
+\begin{enumerate}
+    \item \textbf{Стекинг (Stacking):} Показал лучшие результаты (MSE=2900.24, MAE=42.79, R²=0.453). Комбинирование предсказаний нескольких базовых моделей через мета-модель позволяет улучшить обобщающую способность. Преимущество — возможность использовать разнородные модели.
+    
+    \item \textbf{Многослойный персептрон (MLP):} Показал немного худшие результаты (MSE=2939.13, MAE=43.51, R²=0.445). Нейросетевые модели требуют тщательной настройки гиперпараметров (количество слоёв, нейронов, скорость обучения) и большего объёма данных для достижения высоких результатов.
+    
+    \item \textbf{Общие выводы:}
+    \begin{itemize}
+        \item Стекинг оказался более эффективным на данном датасете, чем отдельная нейросетевая модель.
+        \item Обе модели показали умеренное качество (R²~0.45), что объясняется сложностью предсказания прогрессии диабета по 10 признакам.
+        \item Для улучшения результатов можно использовать более сложные мета-модели, добавлять больше базовых моделей или применять нейросетевые архитектуры с регуляризацией.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
