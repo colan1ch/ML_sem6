@@ -64,18 +64,42 @@
 
 ## Установка и запуск
 
-В репозитории нет файла `requirements.txt` или другого манифеста зависимостей. Для запуска ноутбуков потребуется окружение с библиотеками, перечисленными в разделе [«Использованный стек»](#использованный-стек).
+Для проекта подготовлен файл [requirements.txt](./requirements.txt) с зависимостями, используемыми в ноутбуках, скриптах и приложении.
 
-### Ноутбуки и лабораторная работа №6
+### Вариант 1: виртуальное окружение `venv`
 
-Откройте нужный `.ipynb` в Jupyter или JupyterLab и выполните ячейки последовательно. Скрипт лабораторной работы №6 запускается из её каталога:
+```bash
+python -m venv .venv
+source .venv/bin/activate        # macOS / Linux
+# .venv\Scripts\activate       # Windows PowerShell
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+```
+
+После установки можно открыть ноутбуки в JupyterLab:
+
+```bash
+jupyter lab
+```
+
+### Вариант 2: окружение Conda
+
+```bash
+conda create -n tmo python pip
+conda activate tmo
+python -m pip install -r requirements.txt
+```
+
+### Запуск лабораторной работы №6
+
+Откройте нужный `.ipynb` в Jupyter/JupyterLab и выполните ячейки последовательно. Скрипт лабораторной работы №6 запускается из её каталога:
 
 ```bash
 cd lab6
 python lab6.py
 ```
 
-### Streamlit-приложение НИРС
+### Запуск Streamlit-приложения НИРС
 
 ```bash
 cd nirs
